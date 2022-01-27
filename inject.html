@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="//cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Montserrat:wght@400;600&family=Open+Sans:wght@400;600&family=Press+Start+2P&family=Rubik:wght@300;400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Document</title>
+</head>
+
+<body>
+    
+    <div id="header">
+        <p id = logo>Data Generator</p><span id="dot">.</span>
+    </div>
+
+    <div class="buttons">    
+        <div id="but_items">
+            <div class="buttonCard">
+                <div class="imageArea"><img src="\content\excelButtonStart.png" alt="" width="170" height="170"></div>
+                <button id="button" class="button">Convert to Excel</button>
+            </div>
+
+            <div class="buttonCard">
+                <div class="imageArea"><img src="\content\startMasteram.png" alt="" width="170" height="170"></div>
+                <button id="button_2" class="button">Masteram data</button>
+            </div>
+            <div class="buttonCard">
+                <div class="imageArea"><img src="\content\ymlStart.png" alt="" width="170" height="170"></div>
+                <button id="button_3" class="button">YML Data</button>
+            </div>
+            
+
+            
+            
+        </div>
+
+    </div>
+    <table id="mainTable">
+    </table>
+    <script src="bundle.js"></script>
+    <script defer src="HTML_Table_to_EXCEL.js"></script>
+    <script src="parseYML.js"></script>
+</body>
+
+</html>

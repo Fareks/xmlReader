@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<yml_catalog date="{date}">
+    <offers>
+        <offer id="7788476" available="true">
+            <price>99</price>
+            <price_old>199</price_old>
+            <category>Кастрюли</category>
+            <picture>https://cdn.the-village.ru/the-village.ru/post-cover/JSxikom0m3CPaZL9BokHeg-default.jpg</picture>
+            <picture>https://vogue.ua/cache/inline_990x/uploads/article-inline/31d/de2/873/5e4a873de231d.jpeg</picture>
+            <vendor>Nike</vendor>
+            <name lang="ru">название на русском</name>
+            <name lang="ua">название на украинском</name>
+            <description lang="ru">Описание на русском</description>
+            <description lang="ua">Описание на украинском</description>
+            <weight>555</weight>
+            <width>66</width>
+            <height>77</height>
+            <length>88</length>
+            <barcode>482999304545;482999887762</barcode>
+            <country_of_origin>Китай</country_of_origin>
+        </offer>
+        <offer id="987543" available="true">
+            <price>999</price>
+            <price_old>1999</price_old>
+            <category>Кастрюли</category>
+            <picture>https://cdn.the-village.ru/the-village.ru/post-cover/JSxikom0m3CPaZL9BokHeg-default.jpg</picture>
+            <picture>https://vogue.ua/cache/inline_990x/uploads/article-inline/31d/de2/873/5e4a873de231d.jpeg</picture>
+            <vendor>Nike</vendor>
+            <name lang="ru">название на русском</name>
+            <name lang="ua">название на украинском</name>
+            <description lang="ru">Описание на русском</description>
+            <description lang="ua">Описание на украинском</description>
+            <weight>555</weight>
+            <width>66</width>
+            <height>77</height>
+            <length>88</length>
+            <barcode>482999304545;482999887762</barcode>
+            <country_of_origin>Китай</country_of_origin>
+        </offer>
+    </offers>
+</yml_catalog>

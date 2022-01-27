@@ -1,0 +1,153 @@
+body {
+    background-color: #222224;
+    color: aliceblue;
+    font-family: 'Rubik';
+}
+
+#mainTable {
+
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.invisible {
+    opacity: 0;
+    transition: all 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
+}
+
+.visible {
+    opacity: 1;
+    transition: all 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
+}
+
+.console {
+    font-size: 10px;
+    font-family: 'Press Start 2P', cursive;
+}
+
+.griddy {
+    min-width: 90%;
+}
+
+.offerID {
+    margin-right: 40px;
+}
+
+.offerLang {
+    margin: 0 20px;
+}
+
+
+#header {
+    display: flex;
+    justify-content: center;
+    height: 90px;
+    margin-bottom: 20px;
+    align-items: baseline;
+}
+
+#logo {
+    margin-left: 31px;
+    font-size: 44px;
+    font-family: 'Press Start 2P', cursive;
+}
+
+#dot {
+    position: relative;
+    top:2px;
+    right: 9px;
+    font-size: 44px;
+    font-family: 'Press Start 2P', cursive;
+    animation-name: blink;
+    animation-timing-function: linear;
+    animation-duration: 1.3s;
+    animation-iteration-count: infinite;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    40%
+    {
+        opacity: 1;
+    }
+    41% {
+        opacity: 0;
+    }
+    99%{
+        opacity: 0;
+    }
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    height: 250px;
+}
+
+#but_items {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    max-width: 650px;
+}
+
+.buttonCard {
+    border: 1px solid #d3e8ee;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 200px;
+    height: 220px;
+    transition: all 0.2s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
+}
+
+.buttonCard__active {
+    border: 1px solid #d3e8ee;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 250px;
+    height: 270px;
+    transition: all 0.2s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
+}
+
+
+.button {
+    width: 100%;
+    height: 50px;
+    font-size: 10px;
+    color: #fff;
+    border-radius: 1px;
+    background-color: #222224;
+    cursor: pointer;
+    padding: 10px 10px;
+    position: relative;
+    border: 1px solid #d3e8ee;
+    font-family: 'Press Start 2P', cursive;
+    transition: all 0.2s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
+}
+
+.button__active {
+
+    width: 100%;
+    height: 60px;
+    font-size: 12px;
+    border-radius: 1px;
+    cursor: pointer;
+    padding: 10px 10px;
+    border: 1px solid #d3e8ee;
+    transition: all 0.2s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
+    font-size: 14px;
+    color: #000 !important;
+    background-color: transparent;
+    text-shadow: none;
+    font-family: 'Press Start 2P', cursive;
+    background-color: rgb(231, 231, 240);
+}
