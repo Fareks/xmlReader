@@ -320,4 +320,5 @@ $('#inputURL_Button').hover(
     }
 );
 
-// Call addRow() with the ID of a table
+let x = $('main').children()[0].children()[0].textContent();
+logTxt(x);
