@@ -4,8 +4,83 @@ body {
     font-family: 'Rubik';
 }
 
-#mainTable {
+#url_console_prefix
+{
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    width: 120px;
+    user-select: none;
+    flex-shrink: 0;
 
+}
+.URLform_disable
+{
+    width: 877px;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items:center;
+    position: absolute;
+    visibility: hidden;
+    opacity: 0;
+    transition: all 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
+}
+.URLform_active
+{
+    opacity: 1;
+    width: 877px;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: static;
+    visibility: visible;
+    transition: all 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
+}
+#url {
+    height: 40px;
+    width: 600px;
+    margin: 0px 15px;
+    color:lightcyan;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 9px;
+    background-color: #222224;
+    outline: none;
+    border: 1px solid #d3e8ee;
+    transition: all 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
+}
+#inputURL_Button{
+    border: none;
+    outline: none;
+    border-radius: 141px;
+    /* width: 40px; */
+    padding: 0px 30px;
+    height: 60px;
+    margin: 15px 25px;
+    font-size: 16px;
+    font-family: 'Press Start 2P', cursive;
+    color: rgb(26, 24, 24);
+    background-color: rgb(245, 245, 248);
+    transition: all 0.2s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
+}
+#inputURL_Button:hover {
+    border: none;
+    outline: none;
+    border-radius: 141px;
+    cursor: pointer;
+    /* width: 40px; */
+    padding: 0px 60px;
+    height: 60px;
+    margin: 15px 25px;
+    font-size: 14px;
+    font-family: 'Press Start 2P', cursive;
+    color: rgb(27, 26, 26);
+    background-color: rgb(255, 168, 53);
+    transition: all 0.2s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
+}
+#mainTable {
+    margin: 20px auto;
+    width: 90%;
     font-size: 12px;
     font-weight: 400;
 }

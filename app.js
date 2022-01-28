@@ -1,10 +1,12 @@
 'use scrict';
 //ПАРСИМ ДАННЫЕ С МАСТЕРАМ
+let URLForm = document.forms[0];
 let start_button = document.querySelector('#button_2');
 let parse_yml_button = document.body.querySelector('#button_3');
 let table = document.querySelector('#mainTable');
-table.className ='invisible';
+table.className = 'invisible';
 let divBlock = document.createElement('div');
+let inputURL_Button = document.querySelector('#inputURL_Button');
 document.body.append(divBlock);
 divBlock.classList.add('console');
 let iterate = 1;
@@ -20,17 +22,36 @@ const {
     getChildren
 } = require('domutils');
 
-start_button.addEventListener('click', initMasteramParser);
+start_button.addEventListener('click', MasteramParseBuilder);
 parse_yml_button.addEventListener('click', initYML_Parser);
+
+// inputURL_Button.addEventListener('click',somefunc);
 //masteram parser
+//основной замес с коннектом на мастерам и формированием массивов данных 
+
+
+function MasteramParseBuilder() {
+        //инициализация формы и ожидание ввода данных (урл)
+        document.forms[0].classList.toggle('URLform_active');
+        document.forms[0].classList.toggle('URLform_disable');
+        $('#inputURL_Button').on('click', function (e) {
+            e.preventDefault(); 
+            initMasteramParser();
+        });
+}
+
 function initMasteramParser() {
-    table.className ='invisible';
+    table.className = 'invisible';
     let multimetters_list = [];
     let multimetter = {};
     let link;
     table.innerHTML = '';
+    let input_value = document.getElementById("url").value;
+
+
     logTxt('connecting to masteram...<img  src="loading.gif" width="20" height="20" alt="загрузка" >');
-    axios.get('https://masteram.com.ua/uk/catalogue/test-and-measuring-equipment/multimeters/?ipp=192').then(html => {
+    axios.get(`${input_value}`).then(html => {
+        logTxt('......................');
         const htmlData = cheerio.load(html.data);
         let text = '';
         htmlData('.pr-t_link').each((i, elem) => {
@@ -79,41 +100,44 @@ function initMasteramParser() {
         }
         //Переробити функ під універсал
         setTimeout(addingNewTable, 3000, "Особенности", "Комплектация", multimetters_list, 100);
-        
+
     });
-
-    function addingNewTable(col_name_2, col_name_3, objArr, maxCount = 50) {
-        logTxt('Starting to create table');
-        table.innerHTML += `<tr><td>ID</td><td>${col_name_2}</td><td>${col_name_3}</td></tr>`;
-        for (let i = 0; i < objArr.length; i++) {
-            if (i > maxCount) {
-                break;
-            }
-            table.innerHTML += `<tr class = "griddy"><td class="offerID">${objArr[i].id}.
-        </td><td class="first">${objArr[i].ua_features}</td><td class="first">${objArr[i].complect}</td></tr>`;
-        }
-        clearLog();
-        setTimeout(visibleTable,10);
-    }
-    //XLSX МОДУЛЬ 2
-
-    //XLSX МОДУЛЬ
-    // const xlsx = require('xlsx');
-    // let file = xlsx.readFile('parser.xlsx');
-    // let ws = file.Sheets['One'];
-    // let data = xlsx.utils.sheet_to_json(ws);
-    // console.log(data.One);
-    // let newData = data.map(function (record) {
-    //     record.Net = record.One - record.Two + 100;
-    //     delete record.One;
-    //     return record;
-    // });
-    // var newWB = xlsx.utils.book_new();
-    // var newWS = xlsx.utils.json_to_sheet(newData);
-    // xlsx.utils.book_append_sheet(newWB, newWS, 'New Data');
-    // xlsx.writeFile(newWB, 'readyFile.xlsx');
-    // console.log(data);
 };
+
+//вспомогательная функция, которая билдит таблицу
+function addingNewTable(col_name_2, col_name_3, objArr, maxCount = 50) {
+    logTxt('Starting to create table');
+    table.innerHTML += `<tr><td>ID</td><td>${col_name_2}</td><td>${col_name_3}</td></tr>`;
+    for (let i = 0; i < objArr.length; i++) {
+        if (i > maxCount) {
+            break;
+        }
+        table.innerHTML += `<tr class = "griddy"><td class="offerID">${objArr[i].id}.
+        </td><td class="first">${objArr[i].ua_features}</td><td class="first">${objArr[i].complect}</td></tr>`;
+    }
+    clearLog();
+    setTimeout(visibleTable, 10);
+}
+//XLSX МОДУЛЬ 2
+
+//XLSX МОДУЛЬ
+// const xlsx = require('xlsx');
+// let file = xlsx.readFile('parser.xlsx');
+// let ws = file.Sheets['One'];
+// let data = xlsx.utils.sheet_to_json(ws);
+// console.log(data.One);
+// let newData = data.map(function (record) {
+//     record.Net = record.One - record.Two + 100;
+//     delete record.One;
+//     return record;
+// });
+// var newWB = xlsx.utils.book_new();
+// var newWS = xlsx.utils.json_to_sheet(newData);
+// xlsx.utils.book_append_sheet(newWB, newWS, 'New Data');
+// xlsx.writeFile(newWB, 'readyFile.xlsx');
+// console.log(data);
+
+
 
 //yml parser
 function initYML_Parser() {
@@ -128,7 +152,7 @@ function initYML_Parser() {
     };
 
     function parseYML(generateDefaultTable) {
-        table.className ='invisible';
+        table.className = 'invisible';
         let xmlContent = '';
         var offers = [];
         // let offer = {
@@ -142,10 +166,11 @@ function initYML_Parser() {
         // };
         logTxt(`init yml parse script: ${iterate++}`);
         fetch('https://masteram.com.ua/uk/yml/epicentr-stem-1/').then((response) => {
-
+            logTxt('xml response...');
             response.text().then((xml) => {
                 logTxt('xml ready.');
                 let e_iterator = 0;
+                logTxt('generating default table...');
                 generateDefaultTable();
 
                 let parser = new DOMParser();
@@ -168,7 +193,7 @@ function initYML_Parser() {
                 });
 
                 addRow('mainTable', OffersNameArr.length, 8);
-                setTimeout(visibleTable,10);
+                setTimeout(visibleTable, 10);
                 //проходимся по все офферам, билдим обьект офера и отправляем в таблицу
                 // try {
                 //     offers.forEach((item) => {
@@ -232,8 +257,7 @@ function addRow(tableID, rowsAmount, cellsAmmount = 8) {
 
 
 //да будет свет таблице!
-function visibleTable ()
-{
+function visibleTable() {
     table.className = 'visible';
 }
 //изменения кнопок при наведении
@@ -258,7 +282,7 @@ $(".buttonCard").each(function () {
                 default:
                     break;
             }
-            
+
 
         },
         function () {
@@ -266,20 +290,34 @@ $(".buttonCard").each(function () {
             $(this).attr('class', 'buttonCard');
             $(this).children('button').attr('class', 'button');
             switch ($(this).children('button').attr('id')) {
-            case 'button':
-                $(this).find('img').attr('src', "\\content\\excelButtonStart.png");
-                break;
-            case 'button_2':
-                $(this).find('img').attr('src', "\\content\\startMasteram.png");
-                break;
-            case 'button_3':
-                $(this).find('img').attr('src', "\\content\\ymlStart.png");
-                break;
-            default:
-                break;
-        }
+                case 'button':
+                    $(this).find('img').attr('src', "\\content\\excelButtonStart.png");
+                    break;
+                case 'button_2':
+                    $(this).find('img').attr('src', "\\content\\startMasteram.png");
+                    break;
+                case 'button_3':
+                    $(this).find('img').attr('src', "\\content\\ymlStart.png");
+                    break;
+                default:
+                    break;
+            }
         }
 
     );
 });
+
+//наведение на кнопку СтартПарсинг
+$('#inputURL_Button').hover(
+
+    function () {
+        $(this).text('Start >>');
+
+    },
+    function () {
+        $(this).text('>');
+
+    }
+);
+
 // Call addRow() with the ID of a table
