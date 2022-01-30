@@ -104,15 +104,15 @@ function initMasteramParser() {
             });
         }
         //Переробити функ під універсал
-        setTimeout(addingNewTable, 3000, "Особенности", "Комплектация", multimetters_list, 100);
+        setTimeout(addingNewTable, 3000, "Особенности", "Комплектация","Измерения и тесты","Функции", multimetters_list, 100);
 
     });
 };
 
 //вспомогательная функция, которая билдит таблицу
-function addingNewTable(col_name_2, col_name_3, objArr, maxCount = 50) {
+function addingNewTable(col_name_2, col_name_3, col_name_4="Нет данных", col_name_5 = "Нет данных", objArr, maxCount = 50) {
     logTxt('Starting to create table');
-    table.innerHTML += `<tr><td>ID</td><td>${col_name_2}</td><td>${col_name_3}</td></tr>`;
+    table.innerHTML += `<tr><td>ID</td><td>${col_name_2}</td><td>${col_name_3}</td><td>${col_name_4}</td><td>${col_name_5}</td></tr>`;
     for (let i = 0; i < objArr.length; i++) {
         if (i > maxCount) {
             break;
@@ -124,26 +124,22 @@ function addingNewTable(col_name_2, col_name_3, objArr, maxCount = 50) {
     setTimeout(visibleTable, 10);
     setTimeout(displayCategory_name, 10, `Category: ${categoryName}`);
 }
-//XLSX МОДУЛЬ 2
 
-//XLSX МОДУЛЬ
-// const xlsx = require('xlsx');
-// let file = xlsx.readFile('parser.xlsx');
-// let ws = file.Sheets['One'];
-// let data = xlsx.utils.sheet_to_json(ws);
-// console.log(data.One);
-// let newData = data.map(function (record) {
-//     record.Net = record.One - record.Two + 100;
-//     delete record.One;
-//     return record;
-// });
-// var newWB = xlsx.utils.book_new();
-// var newWS = xlsx.utils.json_to_sheet(newData);
-// xlsx.utils.book_append_sheet(newWB, newWS, 'New Data');
-// xlsx.writeFile(newWB, 'readyFile.xlsx');
-// console.log(data);
+//Функция для парса характеристик. Вход - стринг "Категория", выход - массив массивов(перечень из атрибутов "[Функции:...],[Измерение:...]")
+function getItemsFeatures (category){
+    function getFeature ()
+    {
 
-
+    }
+    switch (category) {
+        case 'Мультиметри':
+            getFeature([['']['']]);
+            break;
+    
+        default:
+            break;
+    }
+}
 
 //yml parser
 function initYML_Parser() {
@@ -184,6 +180,7 @@ function initYML_Parser() {
                 offers = XMLDocument.querySelectorAll('offer');
                 logTxt('offers ready.');
 
+                //проходимся по всем офферам, билдим обьект офера и отправляем в таблицу
                 offers.forEach((item) => {
                     OffersName.id = item.getAttribute('id');
                     OffersName.nameUA = item.querySelector(`name[lang="ua"]`);
@@ -201,24 +198,7 @@ function initYML_Parser() {
                 addRow('mainTable', OffersNameArr.length, 8);
                 setTimeout(visibleTable, 10);
                 displayCategory_name('YML Data');
-                //проходимся по все офферам, билдим обьект офера и отправляем в таблицу
-                // try {
-                //     offers.forEach((item) => {
-                //         logTxt('starting to eaching offers!');
-                //         item.getAttribute('id');
-                //         table.innerHTML += `<tr><td>${item.getAttribute('id')}</td>
-                //         <td>${item.querySelector('price')}</td>
-                //         <td>${item.querySelector('picture')}</td>
-                //         <td>${item.querySelector('picture')}</td>
-                //         <td> ${item.querySelector('name[lang="ua"]')} ua</td>
-                //         <td>${item.querySelector('name[lang="ru"]')} ru</td>
-                //         <td>${item.querySelector('description[lang="ua"]')} ua</td> 
-                //         <td>${item.querySelector('description[lang="ru"]')} ru</td> </tr>`;
-                //         e_iterator++;
-                //     });
-                // } catch (e) {
-                //     if (e < 50) throw e
-                // }
+
 
             });
         });
