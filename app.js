@@ -114,13 +114,14 @@ function initMasteramParser() {
                             const regExp = new RegExp(/не/);
                             itemFeatures.forEach((item,i) =>
                             {
+                                //допилить тут тест на "не", если "не" существует:  itemFeatures.splice(i,1);
                                 if (regExp.test(itemFeatures[i]))
                                 {
                                     itemFeatures.splice(i,1);
                                 }
                             });
-                            regExp.test();
-                            break;
+                            
+                            brea
 
                         default:
                             break;
