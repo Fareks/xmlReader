@@ -10,16 +10,17 @@ let inputURL_Button = document.querySelector('#inputURL_Button');
 document.body.append(divBlock);
 divBlock.classList.add('console');
 let iterate = 1;
-
+let categoryName;
 let OffersName = {};
 let OffersNameArr = [];
 const axios = require('axios');
 const cheerio = require('cheerio');
+const { text } = require('cheerio/lib/api/manipulation');
 
-
+$('.categoryText').fadeOut(1);
 
 const {
-    getChildren
+    getChildren, findOneChild
 } = require('domutils');
 
 start_button.addEventListener('click', MasteramParseBuilder);
@@ -52,7 +53,9 @@ function initMasteramParser() {
     logTxt('connecting to masteram...<img  src="loading.gif" width="20" height="20" alt="загрузка" >');
     axios.get(`${input_value}`).then(html => {
         logTxt('......................');
+        
         const htmlData = cheerio.load(html.data);
+        categoryName = htmlData('main').children().eq(1).children().eq(0).children().eq(0).text();
         let text = '';
         htmlData('.pr-t_link').each((i, elem) => {
             text += `${htmlData(elem).text()}\n`;
@@ -79,6 +82,7 @@ function initMasteramParser() {
                     miniFeaturesAreParsed = false;
                     linkData(elem).children().children().each((i, elem2) => {
                         // ДОДЕЛАТЬ ПРОВЕРКУ ПО ТЕГУ И ДЕСТРУКТУРИЗАЦИЮ
+                        
                         parseObj.ua_features += `&lt;p&gt;${linkData(elem2).text()}&lt;/p&gt; `;
                         miniFeaturesAreParsed = true;
                     });
@@ -99,15 +103,15 @@ function initMasteramParser() {
             });
         }
         //Переробити функ під універсал
-        setTimeout(addingNewTable, 3000, "Особенности", "Комплектация", multimetters_list, 100);
+        setTimeout(addingNewTable, 3000, "Особенности", "Комплектация","Измерения и тесты","Функции", multimetters_list, 100);
 
     });
 };
 
 //вспомогательная функция, которая билдит таблицу
-function addingNewTable(col_name_2, col_name_3, objArr, maxCount = 50) {
+function addingNewTable(col_name_2, col_name_3, col_name_4="Нет данных", col_name_5 = "Нет данных", objArr, maxCount = 50) {
     logTxt('Starting to create table');
-    table.innerHTML += `<tr><td>ID</td><td>${col_name_2}</td><td>${col_name_3}</td></tr>`;
+    table.innerHTML += `<tr><td>ID</td><td>${col_name_2}</td><td>${col_name_3}</td><td>${col_name_4}</td><td>${col_name_5}</td></tr>`;
     for (let i = 0; i < objArr.length; i++) {
         if (i > maxCount) {
             break;
@@ -117,27 +121,24 @@ function addingNewTable(col_name_2, col_name_3, objArr, maxCount = 50) {
     }
     clearLog();
     setTimeout(visibleTable, 10);
+    setTimeout(displayCategory_name, 10, `Category: ${categoryName}`);
 }
-//XLSX МОДУЛЬ 2
 
-//XLSX МОДУЛЬ
-// const xlsx = require('xlsx');
-// let file = xlsx.readFile('parser.xlsx');
-// let ws = file.Sheets['One'];
-// let data = xlsx.utils.sheet_to_json(ws);
-// console.log(data.One);
-// let newData = data.map(function (record) {
-//     record.Net = record.One - record.Two + 100;
-//     delete record.One;
-//     return record;
-// });
-// var newWB = xlsx.utils.book_new();
-// var newWS = xlsx.utils.json_to_sheet(newData);
-// xlsx.utils.book_append_sheet(newWB, newWS, 'New Data');
-// xlsx.writeFile(newWB, 'readyFile.xlsx');
-// console.log(data);
+//Функция для парса характеристик. Вход - стринг "Категория", выход - массив массивов(перечень из атрибутов "[Функции:...],[Измерение:...]")
+function getItemsFeatures (category){
+    function getFeature ()
+    {
 
-
+    }
+    switch (category) {
+        case 'Мультиметри':
+            getFeature([['']['']]);
+            break;
+    
+        default:
+            break;
+    }
+}
 
 //yml parser
 function initYML_Parser() {
@@ -178,6 +179,7 @@ function initYML_Parser() {
                 offers = XMLDocument.querySelectorAll('offer');
                 logTxt('offers ready.');
 
+                //проходимся по всем офферам, билдим обьект офера и отправляем в таблицу
                 offers.forEach((item) => {
                     OffersName.id = item.getAttribute('id');
                     OffersName.nameUA = item.querySelector(`name[lang="ua"]`);
@@ -194,24 +196,8 @@ function initYML_Parser() {
 
                 addRow('mainTable', OffersNameArr.length, 8);
                 setTimeout(visibleTable, 10);
-                //проходимся по все офферам, билдим обьект офера и отправляем в таблицу
-                // try {
-                //     offers.forEach((item) => {
-                //         logTxt('starting to eaching offers!');
-                //         item.getAttribute('id');
-                //         table.innerHTML += `<tr><td>${item.getAttribute('id')}</td>
-                //         <td>${item.querySelector('price')}</td>
-                //         <td>${item.querySelector('picture')}</td>
-                //         <td>${item.querySelector('picture')}</td>
-                //         <td> ${item.querySelector('name[lang="ua"]')} ua</td>
-                //         <td>${item.querySelector('name[lang="ru"]')} ru</td>
-                //         <td>${item.querySelector('description[lang="ua"]')} ua</td> 
-                //         <td>${item.querySelector('description[lang="ru"]')} ru</td> </tr>`;
-                //         e_iterator++;
-                //     });
-                // } catch (e) {
-                //     if (e < 50) throw e
-                // }
+                displayCategory_name('YML Data');
+
 
             });
         });
@@ -259,6 +245,12 @@ function addRow(tableID, rowsAmount, cellsAmmount = 8) {
 //да будет свет таблице!
 function visibleTable() {
     table.className = 'visible';
+}
+
+function displayCategory_name (categoryName = " ") {
+    $('.categoryText').text(' ');
+    $('.categoryText').fadeIn('600');
+    $('.categoryText').append(categoryName);
 }
 //изменения кнопок при наведении
 $(".buttonCard").each(function () {
@@ -320,5 +312,3 @@ $('#inputURL_Button').hover(
     }
 );
 
-let x = $('main').children()[0].children()[0].textContent();
-logTxt(x);

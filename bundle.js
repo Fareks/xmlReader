@@ -11,16 +11,17 @@ let inputURL_Button = document.querySelector('#inputURL_Button');
 document.body.append(divBlock);
 divBlock.classList.add('console');
 let iterate = 1;
-
+let categoryName;
 let OffersName = {};
 let OffersNameArr = [];
 const axios = require('axios');
 const cheerio = require('cheerio');
+const { text } = require('cheerio/lib/api/manipulation');
 
-
+$('.categoryText').fadeOut(1);
 
 const {
-    getChildren
+    getChildren, findOneChild
 } = require('domutils');
 
 start_button.addEventListener('click', MasteramParseBuilder);
@@ -53,7 +54,9 @@ function initMasteramParser() {
     logTxt('connecting to masteram...<img  src="loading.gif" width="20" height="20" alt="загрузка" >');
     axios.get(`${input_value}`).then(html => {
         logTxt('......................');
+        
         const htmlData = cheerio.load(html.data);
+        categoryName = htmlData('main').children().eq(1).children().eq(0).children().eq(0).text();
         let text = '';
         htmlData('.pr-t_link').each((i, elem) => {
             text += `${htmlData(elem).text()}\n`;
@@ -80,6 +83,7 @@ function initMasteramParser() {
                     miniFeaturesAreParsed = false;
                     linkData(elem).children().children().each((i, elem2) => {
                         // ДОДЕЛАТЬ ПРОВЕРКУ ПО ТЕГУ И ДЕСТРУКТУРИЗАЦИЮ
+                        
                         parseObj.ua_features += `&lt;p&gt;${linkData(elem2).text()}&lt;/p&gt; `;
                         miniFeaturesAreParsed = true;
                     });
@@ -118,6 +122,7 @@ function addingNewTable(col_name_2, col_name_3, objArr, maxCount = 50) {
     }
     clearLog();
     setTimeout(visibleTable, 10);
+    setTimeout(displayCategory_name, 10, `Category: ${categoryName}`);
 }
 //XLSX МОДУЛЬ 2
 
@@ -195,6 +200,7 @@ function initYML_Parser() {
 
                 addRow('mainTable', OffersNameArr.length, 8);
                 setTimeout(visibleTable, 10);
+                displayCategory_name('YML Data');
                 //проходимся по все офферам, билдим обьект офера и отправляем в таблицу
                 // try {
                 //     offers.forEach((item) => {
@@ -261,6 +267,12 @@ function addRow(tableID, rowsAmount, cellsAmmount = 8) {
 function visibleTable() {
     table.className = 'visible';
 }
+
+function displayCategory_name (categoryName = " ") {
+    $('.categoryText').text(' ');
+    $('.categoryText').fadeIn('600');
+    $('.categoryText').append(categoryName);
+}
 //изменения кнопок при наведении
 $(".buttonCard").each(function () {
     let oldText = $(this).children('button').text();
@@ -321,8 +333,8 @@ $('#inputURL_Button').hover(
     }
 );
 
-// Call addRow() with the ID of a table
-},{"axios":2,"cheerio":43,"domutils":73}],2:[function(require,module,exports){
+
+},{"axios":2,"cheerio":43,"cheerio/lib/api/manipulation":40,"domutils":73}],2:[function(require,module,exports){
 module.exports = require('./lib/axios');
 },{"./lib/axios":4}],3:[function(require,module,exports){
 'use strict';
