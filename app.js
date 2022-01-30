@@ -13,14 +13,18 @@ let iterate = 1;
 let categoryName;
 let OffersName = {};
 let OffersNameArr = [];
+let OffersFeatureArr = []; // сюда приходят обьекты в виде функция:необработанное значение
 const axios = require('axios');
 const cheerio = require('cheerio');
-const { text } = require('cheerio/lib/api/manipulation');
+const {
+    text
+} = require('cheerio/lib/api/manipulation');
 
 $('.categoryText').fadeOut(1);
 
 const {
-    getChildren, findOneChild
+    getChildren,
+    findOneChild
 } = require('domutils');
 
 start_button.addEventListener('click', MasteramParseBuilder);
@@ -32,13 +36,13 @@ parse_yml_button.addEventListener('click', initYML_Parser);
 
 
 function MasteramParseBuilder() {
-        //инициализация формы и ожидание ввода данных (урл)
-        document.forms[0].classList.toggle('URLform_active');
-        document.forms[0].classList.toggle('URLform_disable');
-        $('#inputURL_Button').on('click', function (e) {
-            e.preventDefault(); 
-            initMasteramParser();
-        });
+    //инициализация формы и ожидание ввода данных (урл)
+    document.forms[0].classList.toggle('URLform_active');
+    document.forms[0].classList.toggle('URLform_disable');
+    $('#inputURL_Button').on('click', function (e) {
+        e.preventDefault();
+        initMasteramParser();
+    });
 }
 
 function initMasteramParser() {
@@ -48,12 +52,12 @@ function initMasteramParser() {
     let link;
     table.innerHTML = '';
     let input_value = document.getElementById("url").value;
-
+    var itemFeatures = []; //переменная, в которую будет заходить массивы с фиачерсами для вывода в таблицу
 
     logTxt('connecting to masteram...<img  src="loading.gif" width="20" height="20" alt="загрузка" >');
     axios.get(`${input_value}`).then(html => {
         logTxt('......................');
-        
+
         const htmlData = cheerio.load(html.data);
         categoryName = htmlData('main').children().eq(1).children().eq(0).children().eq(0).text();
         let text = '';
@@ -72,7 +76,7 @@ function initMasteramParser() {
                 parseObj.ua_features = '';
                 parseObj.ru_features = '';
                 parseObj.id = '';
-
+                
                 const linkData = cheerio.load(html.data);
                 linkData(`[class = "prp_id align-center"]`).each((i, elem) => {
                     parseObj.id += `${linkData(elem).text()}`;
@@ -82,7 +86,7 @@ function initMasteramParser() {
                     miniFeaturesAreParsed = false;
                     linkData(elem).children().children().each((i, elem2) => {
                         // ДОДЕЛАТЬ ПРОВЕРКУ ПО ТЕГУ И ДЕСТРУКТУРИЗАЦИЮ
-                        
+
                         parseObj.ua_features += `&lt;p&gt;${linkData(elem2).text()}&lt;/p&gt; `;
                         miniFeaturesAreParsed = true;
                     });
@@ -96,6 +100,42 @@ function initMasteramParser() {
                     parseObj.complect += `&lt;p&gt;${linkData(elem).text()}&lt;/p&gt; `;
 
                 });
+                getItemsFeatures(categoryName);
+                //Функция для парса характеристик. Вход - стринг "Категория", выход - массив массивов(перечень из атрибутов "[Функции:...],[Измерение:...]")
+                function getItemsFeatures(category) {
+                    logTxt(`${category}`);
+                    switch (category) {
+                        case 'Мультиметри ':
+                                getFeature(["Ємність", "Постійна напруга",
+                                "Постійний струм", "Опір", "Змінна напруга",
+                                "Змінний струм", "Температура", "Тестування діодів", "Частота"
+                            ]);
+                            //отдали getFeature все необходимые свойства, теперь превращаем в false все ненужное, используя РегВыр
+                            const regExp = new RegExp(/не/);
+                            itemFeatures.forEach((item,i) =>
+                            {
+                                if (regExp.test(itemFeatures[i]))
+                                {
+                                    itemFeatures.splice(i,1);
+                                }
+                            });
+                            regExp.test();
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    function getFeature(featuresArr = ['empty',' array']) {
+                        featuresArr.forEach((item, i) => {
+                            itemFeatures.push(linkData('.specification').find(`td:contains(${item})`).next().text());
+                        });
+                        OffersFeatureArr.push(itemFeatures.join(';'));
+                    }
+                    itemFeatures = [];
+
+                }
+
 
                 outputTo.push(Object.assign({}, parseObj));
                 parseObj.complect = '';
@@ -103,13 +143,13 @@ function initMasteramParser() {
             });
         }
         //Переробити функ під універсал
-        setTimeout(addingNewTable, 3000, "Особенности", "Комплектация","Измерения и тесты","Функции", multimetters_list, 100);
+        setTimeout(addingNewTable, 3000, "Особенности", "Комплектация", "Измерения и тесты", "Функции", multimetters_list, 100);
 
     });
 };
 
 //вспомогательная функция, которая билдит таблицу
-function addingNewTable(col_name_2, col_name_3, col_name_4="Нет данных", col_name_5 = "Нет данных", objArr, maxCount = 50) {
+function addingNewTable(col_name_2, col_name_3, col_name_4 = "Нет данных", col_name_5 = "Нет данных", objArr, maxCount = 50) {
     logTxt('Starting to create table');
     table.innerHTML += `<tr><td>ID</td><td>${col_name_2}</td><td>${col_name_3}</td><td>${col_name_4}</td><td>${col_name_5}</td></tr>`;
     for (let i = 0; i < objArr.length; i++) {
@@ -117,28 +157,13 @@ function addingNewTable(col_name_2, col_name_3, col_name_4="Нет данных"
             break;
         }
         table.innerHTML += `<tr class = "griddy"><td class="offerID">${objArr[i].id}.
-        </td><td class="first">${objArr[i].ua_features}</td><td class="first">${objArr[i].complect}</td></tr>`;
+        </td><td class="first">${objArr[i].ua_features}</td><td class="first">${objArr[i].complect}</td><td>${OffersFeatureArr[i]}</td></tr>`;
     }
     clearLog();
     setTimeout(visibleTable, 10);
     setTimeout(displayCategory_name, 10, `Category: ${categoryName}`);
 }
 
-//Функция для парса характеристик. Вход - стринг "Категория", выход - массив массивов(перечень из атрибутов "[Функции:...],[Измерение:...]")
-function getItemsFeatures (category){
-    function getFeature ()
-    {
-
-    }
-    switch (category) {
-        case 'Мультиметри':
-            getFeature([['']['']]);
-            break;
-    
-        default:
-            break;
-    }
-}
 
 //yml parser
 function initYML_Parser() {
@@ -150,7 +175,7 @@ function initYML_Parser() {
     function generateDefaultTable() {
         table.innerHTML += `<tr><td>ID</td><td>Укр название</td><td>Ru Название</td> <td>Цена</td> <td> Фото </td>  <td>Описание UA</td> <td>Описание RU</td> 
     <td>Категория</td> <td>Наличие</td>  </tr>`;
-    };
+    }
 
     function parseYML(generateDefaultTable) {
         table.className = 'invisible';
@@ -247,7 +272,7 @@ function visibleTable() {
     table.className = 'visible';
 }
 
-function displayCategory_name (categoryName = " ") {
+function displayCategory_name(categoryName = " ") {
     $('.categoryText').text(' ');
     $('.categoryText').fadeIn('600');
     $('.categoryText').append(categoryName);
@@ -311,4 +336,3 @@ $('#inputURL_Button').hover(
 
     }
 );
-
