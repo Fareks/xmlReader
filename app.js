@@ -13,7 +13,8 @@ let iterate = 1;
 let categoryName;
 let OffersName = {};
 let OffersNameArr = [];
-let OffersFeatureArr = []; // сюда приходят обьекты в виде функция:необработанное значение
+let OfferFeatureArr = []; // сюда приходят обьекты в виде функция:необработанное значение
+var itemFeaturesEpicSortedArr = [];
 const axios = require('axios');
 const cheerio = require('cheerio');
 const {
@@ -53,6 +54,8 @@ function initMasteramParser() {
     table.innerHTML = '';
     let input_value = document.getElementById("url").value;
     var itemFeatures = []; //переменная, в которую будет заходить массивы с фиачерсами для вывода в таблицу
+    var itemFeaturesEpic = [];
+
 
     logTxt('connecting to masteram...<img  src="loading.gif" width="20" height="20" alt="загрузка" >');
     axios.get(`${input_value}`).then(html => {
@@ -76,8 +79,13 @@ function initMasteramParser() {
                 parseObj.ua_features = '';
                 parseObj.ru_features = '';
                 parseObj.id = '';
-                
+
+
+
                 const linkData = cheerio.load(html.data);
+
+                getItemsFeatures(categoryName);
+
                 linkData(`[class = "prp_id align-center"]`).each((i, elem) => {
                     parseObj.id += `${linkData(elem).text()}`;
                 });
@@ -100,41 +108,39 @@ function initMasteramParser() {
                     parseObj.complect += `&lt;p&gt;${linkData(elem).text()}&lt;/p&gt; `;
 
                 });
-                getItemsFeatures(categoryName);
+
                 //Функция для парса характеристик. Вход - стринг "Категория", выход - массив массивов(перечень из атрибутов "[Функции:...],[Измерение:...]")
                 function getItemsFeatures(category) {
                     logTxt(`${category}`);
                     switch (category) {
                         case 'Мультиметри ':
-                                getFeature(["Ємність", "Постійна напруга",
+                            let regExp = new RegExp(/не/);
+                            getFeature(["Ємність", "Постійна напруга",
                                 "Постійний струм", "Опір", "Змінна напруга",
                                 "Змінний струм", "Температура", "Тестування діодів", "Частота"
-                            ]);
+                            ], ["емкость", "постоянное напряжение", "постоянный ток", "сопротивление",
+                                "переменное напряжение", "переменный ток", "температура", "тестирование диодов", "частота"
+                            ], regExp, "list_to_list");
                             //отдали getFeature все необходимые свойства, теперь превращаем в false все ненужное, используя РегВыр
-                            const regExp = new RegExp(/не/);
-                            itemFeatures.forEach((item,i) =>
-                            {
-                                //допилить тут тест на "не", если "не" существует:  itemFeatures.splice(i,1);
-                                if (regExp.test(itemFeatures[i]))
-                                {
-                                    itemFeatures.splice(i,1);
-                                }
-                            });
-                            
-                            brea
+
 
                         default:
                             break;
                     }
 
-                    function getFeature(featuresArr = ['empty',' array']) {
-                        featuresArr.forEach((item, i) => {
-                            itemFeatures.push(linkData('.specification').find(`td:contains(${item})`).next().text());
-                        });
-                        OffersFeatureArr.push(itemFeatures.join(';'));
+                    function getFeature(featuresArr = ['param1', 'param2'], featuresArrEpic = ['epicParam1', 'epicParam2'], regExp, type) {
+                        if (type == "list_to_list") {
+                            featuresArr.forEach((item, i) => {
+                                if (!(regExp.test(linkData('.specification').find(`td:contains(${item})`).next().text()))) {
+                                    itemFeaturesEpic.push(featuresArrEpic[i]);
+                                }
+                            });
+                            itemFeaturesEpicSortedArr.push(itemFeaturesEpic.join(';'));
+                            OfferFeatureArr.push(itemFeatures.join(';'));
+                        }
                     }
                     itemFeatures = [];
-
+                    itemFeaturesEpic = [];
                 }
 
 
@@ -144,7 +150,7 @@ function initMasteramParser() {
             });
         }
         //Переробити функ під універсал
-        setTimeout(addingNewTable, 3000, "Особенности", "Комплектация", "Измерения и тесты", "Функции", multimetters_list, 100);
+        setTimeout(addingNewTable, 3500, "Особенности", "Комплектация", "Измерения и тесты", "Функции", multimetters_list, 100);
 
     });
 };
@@ -158,7 +164,7 @@ function addingNewTable(col_name_2, col_name_3, col_name_4 = "Нет данны�
             break;
         }
         table.innerHTML += `<tr class = "griddy"><td class="offerID">${objArr[i].id}.
-        </td><td class="first">${objArr[i].ua_features}</td><td class="first">${objArr[i].complect}</td><td>${OffersFeatureArr[i]}</td></tr>`;
+        </td><td class="first">${objArr[i].ua_features}</td><td class="first">${objArr[i].complect}</td><td>${itemFeaturesEpicSortedArr[i]}</td></tr>`;
     }
     clearLog();
     setTimeout(visibleTable, 10);
