@@ -1,5 +1,6 @@
 'use scrict';
 //ПАРСИМ ДАННЫЕ С МАСТЕРАМ
+var resultArr = [];
 let URLForm = document.forms[0];
 let start_button = document.querySelector('#button_2');
 let parse_yml_button = document.body.querySelector('#button_3');
@@ -48,9 +49,15 @@ function MasteramParseBuilder() {
 
 function initMasteramParser() {
     table.className = 'invisible';
-    let multimetters_list = [];
-    let multimetter = {};
-    let link;
+    var item_list_ua = [];
+    let item_as_object_ua = {};
+
+    let item_list_ru = [];
+    let item_as_object_ru = {};
+
+
+    let ua_link;
+    let rulink;
     table.innerHTML = '';
     let input_value = document.getElementById("url").value;
     var itemFeatures = []; //переменная, в которую будет заходить массивы с фиачерсами для вывода в таблицу
@@ -66,61 +73,64 @@ function initMasteramParser() {
         let text = '';
         htmlData('.pr-t_link').each((i, elem) => {
             text += `${htmlData(elem).text()}\n`;
-            link = `https://masteram.com.ua/${htmlData(elem).attr('href')}`;
+            ua_link = `https://masteram.com.ua/${htmlData(elem).attr('href')}`;
+            rulink = `https://masteram.com.ua/ru${htmlData(elem).attr('href').slice(3)}`;
+            parseFeatures(ua_link, rulink, item_as_object_ua, item_list_ua, item_as_object_ru, item_list_ru);
 
-            parseFeatures(link, multimetter, multimetters_list);
         });
         // console.log(link);
 
 
         //допиляти парс
-        function parseFeatures(fromURL, parseObj, outputTo) {
+        function parseFeatures(fromURL, fromRUS_URL, parseObj, outputTo, parseObj_ru, outputTo_ru) {
+
+            //ТУТ НЕОБХОДИМО ДОДЕЛАТЬ РУС ВЕРСИЮ ПАРСА, КОТОРАЯ БУДЕТ ТОЛЬКО БИЛДИТЬ МАССИВЫ ДЛЯ СОЗДАНИЯ ТАБЛИЦЫ
             axios.get(fromURL).then((html) => {
                 parseObj.ua_features = '';
                 parseObj.ru_features = '';
                 parseObj.id = '';
-
+                parseObj.complect = '';
 
 
                 const linkData = cheerio.load(html.data);
-
                 getItemsFeatures(categoryName);
-
                 linkData(`[class = "prp_id align-center"]`).each((i, elem) => {
-                    parseObj.id += `${linkData(elem).text()}`;
+
+                    parseObj.id += `${linkData(elem).text().slice(4)}`;
                 });
                 let miniFeaturesAreParsed = false; //проверяем, спарсили ли мы таблицу в таблице
-                linkData('h2:contains("Особливості")').next().children().each((i, elem) => {
+                linkData(`h2:contains("Особливості"), h2:contains("ОСОБЛИВОСТІ")`).next().children().each((i, elem) => {
                     miniFeaturesAreParsed = false;
                     linkData(elem).children().children().each((i, elem2) => {
                         // ДОДЕЛАТЬ ПРОВЕРКУ ПО ТЕГУ И ДЕСТРУКТУРИЗАЦИЮ
 
                         parseObj.ua_features += `&lt;p&gt;${linkData(elem2).text()}&lt;/p&gt; `;
+
                         miniFeaturesAreParsed = true;
                     });
 
                     if (!miniFeaturesAreParsed) {
                         parseObj.ua_features += `&lt;p&gt;${linkData(elem).text()}&lt;/p&gt; `;
+
                     }
                 });
 
-                linkData('h2:contains("Комплектація")').next().children().each((i, elem) => {
+                linkData('h2:contains("Комплектація"), h2:contains("КОМПЛЕКТАЦІЯ")').next().children().each((i, elem) => {
                     parseObj.complect += `&lt;p&gt;${linkData(elem).text()}&lt;/p&gt; `;
 
                 });
 
                 //Функция для парса характеристик. Вход - стринг "Категория", выход - массив массивов(перечень из атрибутов "[Функции:...],[Измерение:...]")
                 function getItemsFeatures(category) {
-                    logTxt(`${category}`);
                     switch (category) {
                         case 'Мультиметри ':
                             let regExp = new RegExp(/не/);
-                            getFeature(["Ємність", "Постійна напруга",
+                            getFeature("list_to_list", ["Ємність", "Постійна напруга",
                                 "Постійний струм", "Опір", "Змінна напруга",
                                 "Змінний струм", "Температура", "Тестування діодів", "Частота"
                             ], ["емкость", "постоянное напряжение", "постоянный ток", "сопротивление",
                                 "переменное напряжение", "переменный ток", "температура", "тестирование диодов", "частота"
-                            ], regExp, "list_to_list");
+                            ], regExp);
                             //отдали getFeature все необходимые свойства, теперь превращаем в false все ненужное, используя РегВыр
 
 
@@ -128,15 +138,18 @@ function initMasteramParser() {
                             break;
                     }
 
-                    function getFeature(featuresArr = ['param1', 'param2'], featuresArrEpic = ['epicParam1', 'epicParam2'], regExp, type) {
+                    function getFeature(type, featuresArr = ['param1', 'param2'], featuresArrEpic = ['epicParam1', 'epicParam2'], regExp) {
                         if (type == "list_to_list") {
                             featuresArr.forEach((item, i) => {
-                                if (!(regExp.test(linkData('.specification').find(`td:contains(${item})`).next().text()))) {
+                                if (!(regExp.test(linkData('.specification').find(`td:contains(${item})`).next().text())) && (linkData('.specification').find(`td:contains(${item})`).next().text().length > 0)) {
                                     itemFeaturesEpic.push(featuresArrEpic[i]);
                                 }
                             });
                             itemFeaturesEpicSortedArr.push(itemFeaturesEpic.join(';'));
                             OfferFeatureArr.push(itemFeatures.join(';'));
+                        } else if (type == "text_area") {
+                            itemFeaturesEpic = featuresArr[0];
+                            itemFeaturesEpicSortedArr.push(itemFeaturesEpic.join(' '));
                         }
                     }
                     itemFeatures = [];
@@ -148,27 +161,102 @@ function initMasteramParser() {
                 parseObj.complect = '';
                 parseObj.ua_features = '';
             });
-        }
-        //Переробити функ під універсал
-        setTimeout(addingNewTable, 3500, "Особенности", "Комплектация", "Измерения и тесты", "Функции", multimetters_list, 100);
+            axios.get(fromRUS_URL).then((html) => {
+                parseObj_ru.ru_features = '';
+                parseObj_ru.id = '';
 
+                const linkData = cheerio.load(html.data);
+
+                //Вытаскиваем айди
+                linkData(`[class = "prp_id align-center"]`).each((i, elem) => {
+
+                    parseObj_ru.id += `${linkData(elem).text().slice(4)}`;
+                });
+
+                let miniFeaturesAreParsed = false; //проверяем, спарсили ли мы таблицу в таблице
+                linkData(`h2:contains("Особенности"), h2:contains("ОСОБЕННОСТИ")`).next().children().each((i, elem) => {
+                    miniFeaturesAreParsed = false;
+                    linkData(elem).children().children().each((i, elem2) => {
+                        // ДОДЕЛАТЬ ПРОВЕРКУ ПО ТЕГУ И ДЕСТРУКТУРИЗАЦИЮ
+
+                        parseObj_ru.ru_features += `&lt;p&gt;${linkData(elem2).text()}&lt;/p&gt; `;
+                        miniFeaturesAreParsed = true;
+                    });
+
+                    if (!miniFeaturesAreParsed) {
+                        parseObj_ru.ru_features += `&lt;p&gt;${linkData(elem).text()}&lt;/p&gt; `;
+                    }
+                });
+
+                linkData('h2:contains("Комплектация"), h2:contains("КОМПЛЕКТАЦИЯ")').next().children().each((i, elem) => {
+                    parseObj_ru.ru_complect += `&lt;p&gt;${linkData(elem).text()}&lt;/p&gt; `;
+
+                });
+
+                outputTo_ru.push(Object.assign({}, parseObj_ru));
+                parseObj_ru.ru_complect = '';
+            });
+        }
+
+        //Переробити функ під універсал
+        // function sortAllData (a,b) {
+        //     let arrayMap = a.filter(({ id: idv }) => b.every(({ id: idc }) => idv !== idc));
+        //     b = b.concat(arrayMap).map((v) => v.ua_features ? v : { ...v,  ua_features: null , complect: null, ru_complect: null, });
+        // }
+        function merge() {
+        resultArr = innerJoin(item_list_ua, item_list_ru,
+            ({
+                id: uid,
+                ua_features,
+                complect
+            }, {
+                id,
+                ru_features,
+                ru_complect
+            }) =>
+            id === uid && {
+                id,
+                ua_features,
+                complect,
+                ru_features,
+                ru_complect
+            });
+        logTxt(`My var is: ${item_list_ua[0].id}`);
+        }
+        setTimeout(merge,5000);
+        // setTimeout(addingNewTable, 7500, "Особенности UA", "Особенности RU", "Комплектация UA", "Комплектация RU", "Что-то там", item_list_ua, item_list_ru, 100);
+        setTimeout(addingNewTable, 7500, "Особенности UA", "Особенности RU", "Комплектация UA", "Комплектация RU", "Что-то там", resultArr, 100);
     });
+
+    function innerJoin (xs, ys, sel) {
+        logTxt('Функция иннера была запущена!');
+        return (xs.reduce((zs, x) =>
+        ys.reduce((zs, y) =>  // cartesian product - all combinations
+            zs.concat(sel(x, y) || []), // filter out the rows and columns you want
+            zs), []));
+    }
+
 };
 
+
 //вспомогательная функция, которая билдит таблицу
-function addingNewTable(col_name_2, col_name_3, col_name_4 = "Нет данных", col_name_5 = "Нет данных", objArr, maxCount = 50) {
+function addingNewTable(col_name_2 = "Особенности UA", col_name_2_1 = "Особенности RU", col_name_3 = "Комплектация UA", col_name_3_2 = "Комплектация RU",
+    col_name_4 = "Нет данных", objArr, maxCount = 50) {
     logTxt('Starting to create table');
-    table.innerHTML += `<tr><td>ID</td><td>${col_name_2}</td><td>${col_name_3}</td><td>${col_name_4}</td><td>${col_name_5}</td></tr>`;
-    for (let i = 0; i < objArr.length; i++) {
-        if (i > maxCount) {
-            break;
+            
+    logTxt(resultArr.length);
+    table.innerHTML += `<tr><td>ID</td><td>${col_name_2}</td><td>${col_name_2_1}</td><td>${col_name_3}</td><td>${col_name_3_2}</td><td>${col_name_4}</td></tr>`;
+        for (let i = 0; i < resultArr.length; i++) {
+            if (i > maxCount) {
+                break;
+            }
+            table.innerHTML += `<tr class = "griddy"><td class="offerID">${resultArr[i].id}</td><td class="first">
+            ${resultArr[i].ua_features}</td><td class="second">${resultArr[i].id} ${resultArr[i].ru_features}</td><td class="third">${resultArr[i].complect}</td>
+            <td class="forty">${resultArr[i].ru_complect}</td><td>${itemFeaturesEpicSortedArr[i]}</td></tr>`;
         }
-        table.innerHTML += `<tr class = "griddy"><td class="offerID">${objArr[i].id}.
-        </td><td class="first">${objArr[i].ua_features}</td><td class="first">${objArr[i].complect}</td><td>${itemFeaturesEpicSortedArr[i]}</td></tr>`;
-    }
-    clearLog();
-    setTimeout(visibleTable, 10);
-    setTimeout(displayCategory_name, 10, `Category: ${categoryName}`);
+        // clearLog();
+        setTimeout(visibleTable, 10);
+        setTimeout(displayCategory_name, 10, `Category: ${categoryName}`);
 }
 
 
@@ -216,7 +304,7 @@ function initYML_Parser() {
                     OffersName.id = item.getAttribute('id');
                     OffersName.nameUA = item.querySelector(`name[lang="ua"]`);
                     OffersName.nameRU = item.querySelector(`name[lang="ru"]`);
-                    OffersName.price = `0${item.querySelector(`price`).textContent}`;
+                    OffersName.price = `value: ${item.querySelector(`price`).textContent}`;
                     OffersName.picture = item.querySelector('picture');
                     OffersName.descriptionUA = item.querySelector('description[lang="ua"]');
                     OffersName.descriptionRU = item.querySelector('description[lang="ru"]');
