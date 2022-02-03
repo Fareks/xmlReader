@@ -221,7 +221,6 @@ function initMasteramParser() {
                 ru_features,
                 ru_complect
             });
-        logTxt(`My var is: ${item_list_ua[0].id}`);
         }
         setTimeout(merge,5000);
         // setTimeout(addingNewTable, 7500, "Особенности UA", "Особенности RU", "Комплектация UA", "Комплектация RU", "Что-то там", item_list_ua, item_list_ru, 100);
@@ -229,7 +228,6 @@ function initMasteramParser() {
     });
 
     function innerJoin (xs, ys, sel) {
-        logTxt('Функция иннера была запущена!');
         return (xs.reduce((zs, x) =>
         ys.reduce((zs, y) =>  // cartesian product - all combinations
             zs.concat(sel(x, y) || []), // filter out the rows and columns you want
