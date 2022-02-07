@@ -56,7 +56,6 @@ function initMasteramParser() {
     let item_list_ru = [];
     let item_as_object_ru = {};
 
-
     let ua_link;
     let rulink;
     table.innerHTML = '';
@@ -66,6 +65,7 @@ function initMasteramParser() {
 
 
     logTxt('connecting to masteram...<img  src="loading.gif" width="20" height="20" alt="загрузка" >');
+
     axios.get(`${input_value}`).then(html => {
         logTxt('......................');
 
@@ -79,9 +79,6 @@ function initMasteramParser() {
             parseFeatures(ua_link, rulink, item_as_object_ua, item_list_ua, item_as_object_ru, item_list_ru);
 
         });
-        // console.log(link);
-
-
         //допиляти парс
         function parseFeatures(fromURL, fromRUS_URL, parseObj, outputTo, parseObj_ru, outputTo_ru) {
 
@@ -91,6 +88,7 @@ function initMasteramParser() {
                 parseObj.ru_features = '';
                 parseObj.id = '';
                 parseObj.complect = '';
+                parseObj.warranty = '';
 
 
                 const linkData = cheerio.load(html.data);
@@ -99,6 +97,8 @@ function initMasteramParser() {
 
                     parseObj.id += `${linkData(elem).text().slice(4)}`;
                 });
+
+                parseObj.warranty = parseInt(linkData('[class="prp_info_item info-warranty"] > b').text());
                 let miniFeaturesAreParsed = false; //проверяем, спарсили ли мы таблицу в таблице
                 linkData(`h2:contains("Особливості"), h2:contains("ОСОБЛИВОСТІ")`).next().children().each((i, elem) => {
                     miniFeaturesAreParsed = false;
@@ -133,6 +133,7 @@ function initMasteramParser() {
                                 "переменное напряжение", "переменный ток", "температура", "тестирование диодов", "частота"
                             ], regExp);
                             //отдали getFeature все необходимые свойства, теперь превращаем в false все ненужное, используя РегВыр
+                        case 'Паяльні станції термоповітряні ':
 
 
                         default:
@@ -205,36 +206,36 @@ function initMasteramParser() {
         //     b = b.concat(arrayMap).map((v) => v.ua_features ? v : { ...v,  ua_features: null , complect: null, ru_complect: null, });
         // }
         function merge() {
-        resultArr = innerJoin(item_list_ua, item_list_ru,
-            ({
-                id: uid,
-                ua_features,
-                complect
-            }, {
-                id,
-                ru_features,
-                ru_complect
-            }) =>
-            id === uid && {
-                id,
-                ua_features,
-                complect,
-                ru_features,
-                ru_complect
-            });
-        logTxt(`My var is: ${item_list_ua[0].id}`);
+            resultArr = innerJoin(item_list_ua, item_list_ru,
+                ({
+                    id: uid,
+                    ua_features,
+                    complect,
+                    warranty
+                }, {
+                    id,
+                    ru_features,
+                    ru_complect
+                }) =>
+                id === uid && {
+                    id,
+                    ua_features,
+                    complect,
+                    ru_features,
+                    ru_complect,
+                    warranty
+                });
         }
-        setTimeout(merge,5000);
+        setTimeout(merge, 5000);
         // setTimeout(addingNewTable, 7500, "Особенности UA", "Особенности RU", "Комплектация UA", "Комплектация RU", "Что-то там", item_list_ua, item_list_ru, 100);
-        setTimeout(addingNewTable, 7500, "Особенности UA", "Особенности RU", "Комплектация UA", "Комплектация RU", "Что-то там", resultArr, 100);
+        setTimeout(addingNewTable, 7500, "Особенности UA", "Особенности RU", "Комплектация UA", "Комплектация RU", "Параметр 1","Гарантія", resultArr, 200);
     });
 
-    function innerJoin (xs, ys, sel) {
-        logTxt('Функция иннера была запущена!');
+    function innerJoin(xs, ys, sel) {
         return (xs.reduce((zs, x) =>
-        ys.reduce((zs, y) =>  // cartesian product - all combinations
-            zs.concat(sel(x, y) || []), // filter out the rows and columns you want
-            zs), []));
+            ys.reduce((zs, y) => // cartesian product - all combinations
+                zs.concat(sel(x, y) || []), // filter out the rows and columns you want
+                zs), []));
     }
 
 };
@@ -242,22 +243,23 @@ function initMasteramParser() {
 
 //вспомогательная функция, которая билдит таблицу
 function addingNewTable(col_name_2 = "Особенности UA", col_name_2_1 = "Особенности RU", col_name_3 = "Комплектация UA", col_name_3_2 = "Комплектация RU",
-    col_name_4 = "Нет данных", objArr, maxCount = 50) {
+    col_name_4 = "Нет данных", col_name_5 = "Нет данных" ,objArr, maxCount = 50) {
     logTxt('Starting to create table');
-            
+
     logTxt(resultArr.length);
-    table.innerHTML += `<tr><td>ID</td><td>${col_name_2}</td><td>${col_name_2_1}</td><td>${col_name_3}</td><td>${col_name_3_2}</td><td>${col_name_4}</td></tr>`;
-        for (let i = 0; i < resultArr.length; i++) {
-            if (i > maxCount) {
-                break;
-            }
-            table.innerHTML += `<tr class = "griddy"><td class="offerID">${resultArr[i].id}</td><td class="first">
-            ${resultArr[i].ua_features}</td><td class="second">${resultArr[i].id} ${resultArr[i].ru_features}</td><td class="third">${resultArr[i].complect}</td>
-            <td class="forty">${resultArr[i].ru_complect}</td><td>${itemFeaturesEpicSortedArr[i]}</td></tr>`;
+    table.innerHTML += `<tr><td>ID</td><td>${col_name_2}</td><td>${col_name_2_1}</td><td>${col_name_3}</td><td>${col_name_3_2}</td>
+    <td>${col_name_4}</td><td>${col_name_5}</td></tr>`;
+    for (let i = 0; i < resultArr.length; i++) {
+        if (i > maxCount) {
+            break;
         }
-        // clearLog();
-        setTimeout(visibleTable, 10);
-        setTimeout(displayCategory_name, 10, `Category: ${categoryName}`);
+        table.innerHTML += `<tr class = "griddy"><td class="offerID">${resultArr[i].id}</td><td class="first">
+            ${resultArr[i].ua_features}</td><td class="second">${resultArr[i].ru_features}</td><td class="third">${resultArr[i].complect}</td>
+            <td class="forty">${resultArr[i].ru_complect}</td><td>${itemFeaturesEpicSortedArr[i]}</td><td>${resultArr[i].warranty}</td></tr>`;
+    }
+    clearLog();
+    setTimeout(visibleTable, 10);
+    setTimeout(displayCategory_name, 10, `Category: ${categoryName}`);
 }
 
 
@@ -268,10 +270,7 @@ function initYML_Parser() {
     clearLog();
     parseYML(generateDefaultTable);
 
-    function generateDefaultTable() {
-        table.innerHTML += `<tr><td>ID</td><td>Укр название</td><td>Ru Название</td> <td>Цена</td> <td> Фото </td>  <td>Описание UA</td> <td>Описание RU</td> 
-    <td>Категория</td> <td>Наличие</td>  </tr>`;
-    }
+
 
     function parseYML(generateDefaultTable) {
         table.className = 'invisible';
@@ -293,7 +292,8 @@ function initYML_Parser() {
                 logTxt('xml ready.');
                 let e_iterator = 0;
                 logTxt('generating default table...');
-                generateDefaultTable();
+                generateDefaultTable(`<tr><td>ID</td><td>Укр название</td><td>Ru Название</td> <td>Цена</td> <td> Фото </td>  <td>Описание UA</td> <td>Описание RU</td> 
+                <td>Категория</td> <td>Наличие</td>  </tr>`);
 
                 let parser = new DOMParser();
                 let XMLDocument = parser.parseFromString(xml, 'application/xml');
@@ -315,7 +315,7 @@ function initYML_Parser() {
                     OffersNameArr.push(ObjBuffer);
                 });
 
-                addRow('mainTable', OffersNameArr.length, 8);
+                addRow('mainTable', OffersNameArr.length, 8, OffersNameArr);
                 setTimeout(visibleTable, 10);
                 displayCategory_name('YML Data');
 
@@ -324,6 +324,10 @@ function initYML_Parser() {
         });
     };
 };
+
+function generateDefaultTable(firstRow) {
+    table.innerHTML += firstRow;
+}
 
 
 //consoleLogAnalog
@@ -335,7 +339,7 @@ function clearLog() {
     divBlock.innerHTML = (``);
 }
 
-function addRow(tableID, rowsAmount, cellsAmmount = 8) {
+function addRow(tableID, rowsAmount, cellsAmmount = 8, content) {
     // Get a reference to the table
     var tableRef = document.getElementById(tableID);
     let cellsArr = new Array(cellsAmmount);
@@ -348,7 +352,7 @@ function addRow(tableID, rowsAmount, cellsAmmount = 8) {
         // Insert a cell in the row at index 0
 
         //Проходим по обьекту (возвращая индекс значения и само значение и в этом же цикле вставляем в cells[i])
-        Object.values(OffersNameArr[i]).forEach((item, y) => {
+        Object.values(content[i]).forEach((item, y) => {
             cellsArr[y] = rowArr[i].insertCell(-1);
             if (typeof (item) == 'object') {
                 cellsArr[y].textContent = (item.textContent);
