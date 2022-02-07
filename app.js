@@ -91,12 +91,12 @@ function initMasteramParser() {
 
 
                 const linkData = cheerio.load(html.data);
-                getItemsFeatures(categoryName);
+
                 linkData(`[class = "prp_id align-center"]`).each((i, elem) => {
 
                     parseObj.id += `${linkData(elem).text().slice(4)}`;
                 });
-
+                getItemsFeatures(categoryName, parseObj.id);
                 parseObj.warranty = parseInt(linkData('[class="prp_info_item info-warranty"] > b').text());
                 let miniFeaturesAreParsed = false; //проверяем, спарсили ли мы таблицу в таблице
                 linkData(`h2:contains("Особливості"), h2:contains("ОСОБЛИВОСТІ")`).next().children().each((i, elem) => {
@@ -104,24 +104,24 @@ function initMasteramParser() {
                     linkData(elem).children().children().each((i, elem2) => {
                         // ДОДЕЛАТЬ ПРОВЕРКУ ПО ТЕГУ И ДЕСТРУКТУРИЗАЦИЮ
 
-                        parseObj.ua_features += `&lt;p&gt;${linkData(elem2).text()}&lt;/p&gt; `;
+                        parseObj.ua_features += `<p>${linkData(elem2).text()}</p>`;
 
                         miniFeaturesAreParsed = true;
                     });
 
                     if (!miniFeaturesAreParsed) {
-                        parseObj.ua_features += `&lt;p&gt;${linkData(elem).text()}&lt;/p&gt; `;
+                        parseObj.ua_features += `<p>${linkData(elem).text()}</p> `;
 
                     }
                 });
 
                 linkData('h2:contains("Комплектація"), h2:contains("КОМПЛЕКТАЦІЯ")').next().children().each((i, elem) => {
-                    parseObj.complect += `&lt;p&gt;${linkData(elem).text()}&lt;/p&gt; `;
+                    parseObj.complect += `<p>${linkData(elem).text()}</p> `;
 
                 });
 
                 //Функция для парса характеристик. Вход - стринг "Категория", выход - массив массивов(перечень из атрибутов "[Функции:...],[Измерение:...]")
-                function getItemsFeatures(category) {
+                function getItemsFeatures(category, test) {
                     switch (category) {
                         case 'Мультиметри ':
                             let regExp = new RegExp(/не/);
@@ -141,12 +141,14 @@ function initMasteramParser() {
 
                     function getFeature(type, featuresArr = ['param1', 'param2'], featuresArrEpic = ['epicParam1', 'epicParam2'], regExp) {
                         if (type == "list_to_list") {
+
                             featuresArr.forEach((item, i) => {
                                 if (!(regExp.test(linkData('.specification').find(`td:contains(${item})`).next().text())) && (linkData('.specification').find(`td:contains(${item})`).next().text().length > 0)) {
                                     itemFeaturesEpic.push(featuresArrEpic[i]);
                                 }
                             });
-                            itemFeaturesEpicSortedArr.push(itemFeaturesEpic.join(';'));
+
+                            itemFeaturesEpicSortedArr.push(`${itemFeaturesEpic.join(';')}`);
                             OfferFeatureArr.push(itemFeatures.join(';'));
                         } else if (type == "text_area") {
                             itemFeaturesEpic = featuresArr[0];
@@ -180,17 +182,17 @@ function initMasteramParser() {
                     linkData(elem).children().children().each((i, elem2) => {
                         // ДОДЕЛАТЬ ПРОВЕРКУ ПО ТЕГУ И ДЕСТРУКТУРИЗАЦИЮ
 
-                        parseObj_ru.ru_features += `&lt;p&gt;${linkData(elem2).text()}&lt;/p&gt; `;
+                        parseObj_ru.ru_features += `<p>${linkData(elem2).text()}</p> `;
                         miniFeaturesAreParsed = true;
                     });
 
                     if (!miniFeaturesAreParsed) {
-                        parseObj_ru.ru_features += `&lt;p&gt;${linkData(elem).text()}&lt;/p&gt; `;
+                        parseObj_ru.ru_features += `<p>${linkData(elem).text()}</p> `;
                     }
                 });
 
                 linkData('h2:contains("Комплектация"), h2:contains("КОМПЛЕКТАЦИЯ")').next().children().each((i, elem) => {
-                    parseObj_ru.ru_complect += `&lt;p&gt;${linkData(elem).text()}&lt;/p&gt; `;
+                    parseObj_ru.ru_complect += `<p>${linkData(elem).text()}</p> `;
 
                 });
 
@@ -219,15 +221,15 @@ function initMasteramParser() {
                 id === uid && {
                     id,
                     ua_features,
-                    complect,
                     ru_features,
+                    complect,
                     ru_complect,
                     warranty
                 });
         }
         setTimeout(merge, 5000);
         // setTimeout(addingNewTable, 7500, "Особенности UA", "Особенности RU", "Комплектация UA", "Комплектация RU", "Что-то там", item_list_ua, item_list_ru, 100);
-        setTimeout(addingNewTable, 7500, "Особенности UA", "Особенности RU", "Комплектация UA", "Комплектация RU", "Параметр 1","Гарантія", resultArr, 200);
+        setTimeout(addingNewTable, 7500, "Особенности UA", "Особенности RU", "Комплектация UA", "Комплектация RU", "Гарантия", "Параметр 1", resultArr, 200);
     });
 
     function innerJoin(xs, ys, sel) {
@@ -242,20 +244,21 @@ function initMasteramParser() {
 
 //вспомогательная функция, которая билдит таблицу
 function addingNewTable(col_name_2 = "Особенности UA", col_name_2_1 = "Особенности RU", col_name_3 = "Комплектация UA", col_name_3_2 = "Комплектация RU",
-    col_name_4 = "Нет данных", col_name_5 = "Нет данных" ,objArr, maxCount = 50) {
+    col_name_4 = "Нет данных", col_name_5 = "Нет данных", objArr, maxCount = 50) {
     logTxt('Starting to create table');
 
     logTxt(resultArr.length);
-    table.innerHTML += `<tr><td>ID</td><td>${col_name_2}</td><td>${col_name_2_1}</td><td>${col_name_3}</td><td>${col_name_3_2}</td>
-    <td>${col_name_4}</td><td>${col_name_5}</td></tr>`;
-    for (let i = 0; i < resultArr.length; i++) {
-        if (i > maxCount) {
-            break;
-        }
-        table.innerHTML += `<tr class = "griddy"><td class="offerID">${resultArr[i].id}</td><td class="first">
-            ${resultArr[i].ua_features}</td><td class="second">${resultArr[i].ru_features}</td><td class="third">${resultArr[i].complect}</td>
-            <td class="forty">${resultArr[i].ru_complect}</td><td>${itemFeaturesEpicSortedArr[i]}</td><td>${resultArr[i].warranty}</td></tr>`;
-    }
+    generateDefaultTable(`<tr><td>ID</td><td>${col_name_2}</td><td>${col_name_2_1}</td><td>${col_name_3}</td><td>${col_name_3_2}</td>
+    <td>${col_name_4}</td><td>${col_name_5}</td></tr>`);
+    addRow('mainTable', resultArr.length, 7, [resultArr, itemFeaturesEpicSortedArr]);
+    // for (let i = 0; i < resultArr.length; i++) {
+    //     if (i > maxCount) {
+    //         break;
+    //     }
+    //     table.innerHTML += `<tr class = "griddy"><td class="offerID">${resultArr[i].id}</td><td class="first">
+    //         ${resultArr[i].ua_features}</td><td class="second">${resultArr[i].ru_features}</td><td class="third">${resultArr[i].complect}</td>
+    //         <td class="forty">${resultArr[i].ru_complect}</td><td>${itemFeaturesEpicSortedArr[i]}</td><td>${resultArr[i].warranty}</td></tr>`;
+    // }
     clearLog();
     setTimeout(visibleTable, 10);
     setTimeout(displayCategory_name, 10, `Category: ${categoryName}`);
@@ -314,7 +317,7 @@ function initYML_Parser() {
                     OffersNameArr.push(ObjBuffer);
                 });
 
-                addRow('mainTable', OffersNameArr.length, 8, OffersNameArr);
+                addRow('mainTable', OffersNameArr.length, 8, [OffersNameArr]);
                 setTimeout(visibleTable, 10);
                 displayCategory_name('YML Data');
 
@@ -338,7 +341,9 @@ function clearLog() {
     divBlock.innerHTML = (``);
 }
 
-function addRow(tableID, rowsAmount, cellsAmmount = 8, content) {
+// функция addRow принимает в себя 1.Айди таблицы, которую и будем билдить. 2. Количество строк. 3. Количество столбцов, массив контента, 
+// который содержит минимум один массив контента.
+function addRow(tableID, rowsAmount, cellsAmmount = 8, contentArray) {
     // Get a reference to the table
     var tableRef = document.getElementById(tableID);
     let cellsArr = new Array(cellsAmmount);
@@ -350,16 +355,31 @@ function addRow(tableID, rowsAmount, cellsAmmount = 8, content) {
         rowArr[i] = tableRef.insertRow(-1);
         // Insert a cell in the row at index 0
 
-        //Проходим по обьекту (возвращая индекс значения и само значение и в этом же цикле вставляем в cells[i])
-        Object.values(content[i]).forEach((item, y) => {
-            cellsArr[y] = rowArr[i].insertCell(-1);
-            if (typeof (item) == 'object') {
-                cellsArr[y].textContent = (item.textContent);
-            } else {
-                cellsArr[y].textContent = (item);
+        //Вход: массив для принятия n массивов, в которых лежит контент для таблицы. 
+        let iterand = 0; //проходися по массиву и открываем массивы
+        contentArray.forEach((content_data) => { //если в массиве только строки, то нет необходиомости в деструктуризации, просто билбим ячейку таблицы с помощью данной строки
+            if (typeof (content_data[0]) == 'string') {
+                cellsArr[iterand] = rowArr[i].insertCell(-1);
+                cellsArr[iterand].textContent = (content_data[i]);
+                iterand++;
+            } else { //в другом случае открываем как обьект и проверяем, нет ли там ещё обьектов. 
+                Object.values(content_data[i]).forEach((item, y) => {
+                    cellsArr[iterand] = rowArr[i].insertCell(-1);
+                    if (typeof (item) == 'object') {
+                        cellsArr[iterand].textContent = (item.textContent);
+                    } else {
+                        cellsArr[iterand].textContent = (item);
+                    }
+                    iterand++;
+                });
             }
 
+
         });
+
+
+        // cellsArr[cellsArr.length-1] = rowArr[i].insertCell(-1);
+        // cellsArr[cellsArr.length-1].textContent = (content[1][i]);
 
     }
 }
