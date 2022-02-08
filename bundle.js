@@ -17,6 +17,7 @@ let OffersName = {};
 let OffersNameArr = [];
 let OfferFeatureArr = []; // сюда приходят обьекты в виде функция:необработанное значение
 var itemFeaturesEpicSortedArr = [];
+let paramName = 'Характеристики товара';
 const axios = require('axios');
 const cheerio = require('cheerio');
 const {
@@ -125,6 +126,7 @@ function initMasteramParser() {
                 function getItemsFeatures(category, test) {
                     switch (category) {
                         case 'Мультиметри ':
+                            paramName = 'Функции';
                             let regExp = new RegExp(/не/);
                             getFeature("list_to_list", ["Ємність", "Постійна напруга",
                                 "Постійний струм", "Опір", "Змінна напруга",
@@ -134,7 +136,9 @@ function initMasteramParser() {
                             ], regExp);
                             //отдали getFeature все необходимые свойства, теперь превращаем в false все ненужное, используя РегВыр
                         case 'Паяльні станції термоповітряні ':
-
+                            break;
+                        case 'Паяльні станції ':
+                            getFeature('text_area', ['Потужність']);
 
                         default:
                             break;
@@ -153,7 +157,7 @@ function initMasteramParser() {
                             OfferFeatureArr.push(itemFeatures.join(';'));
                         } else if (type == "text_area") {
                             itemFeaturesEpic = featuresArr[0];
-                            itemFeaturesEpicSortedArr.push(itemFeaturesEpic.join(' '));
+                            itemFeaturesEpicSortedArr.push(linkData('.specification').find(`td:contains(${featuresArr[0]})`).next().text());
                         }
                     }
                     itemFeatures = [];
@@ -230,7 +234,7 @@ function initMasteramParser() {
         }
         setTimeout(merge, 5000);
         // setTimeout(addingNewTable, 7500, "Особенности UA", "Особенности RU", "Комплектация UA", "Комплектация RU", "Что-то там", item_list_ua, item_list_ru, 100);
-        setTimeout(addingNewTable, 7500, "Особенности UA", "Особенности RU", "Комплектация UA", "Комплектация RU", "Гарантия", "Параметр 1", resultArr, 200);
+        setTimeout(addingNewTable, 7500, ["Особенности UA", "Особенности RU", "Комплектация UA", "Комплектация RU", "Гарантия", paramName], resultArr, 200);
     });
 
     function innerJoin(xs, ys, sel) {
@@ -244,13 +248,12 @@ function initMasteramParser() {
 
 
 //вспомогательная функция, которая билдит таблицу
-function addingNewTable(col_name_2 = "Особенности UA", col_name_2_1 = "Особенности RU", col_name_3 = "Комплектация UA", col_name_3_2 = "Комплектация RU",
-    col_name_4 = "Нет данных", col_name_5 = "Нет данных", objArr, maxCount = 50) {
+function addingNewTable(col_name, objArr, maxCount = 50) {
     logTxt('Starting to create table');
 
     logTxt(resultArr.length);
-    generateDefaultTable(`<tr><td>ID</td><td>${col_name_2}</td><td>${col_name_2_1}</td><td>${col_name_3}</td><td>${col_name_3_2}</td>
-    <td>${col_name_4}</td><td>${col_name_5}</td></tr>`);
+    generateDefaultTable(`<tr><td>ID</td><td>${col_name[0]}</td><td>${col_name[1]}</td><td>${col_name[2]}</td><td>${col_name[3]}</td>
+    <td>${col_name[4]}</td><td>${col_name[5]}</td></tr>`);
     addRow('mainTable', resultArr.length, 7, [resultArr, itemFeaturesEpicSortedArr]);
     // for (let i = 0; i < resultArr.length; i++) {
     //     if (i > maxCount) {
@@ -359,11 +362,15 @@ function addRow(tableID, rowsAmount, cellsAmmount = 8, contentArray) {
         //Вход: массив для принятия n массивов, в которых лежит контент для таблицы. 
         let iterand = 0; //проходися по массиву и открываем массивы
         contentArray.forEach((content_data) => { //если в массиве только строки, то нет необходиомости в деструктуризации, просто билбим ячейку таблицы с помощью данной строки
-            if (typeof (content_data[0]) == 'string') {
+            if (typeof (content_data[i]) == 'string') {
                 cellsArr[iterand] = rowArr[i].insertCell(-1);
                 cellsArr[iterand].textContent = (content_data[i]);
                 iterand++;
-            } else { //в другом случае открываем как обьект и проверяем, нет ли там ещё обьектов. 
+            } else if (content_data[i] === null || typeof (content_data[i]) == 'undefined'){ //в другом случае открываем как обьект и проверяем, нет ли там ещё обьектов. 
+                cellsArr[iterand] = rowArr[i].insertCell(-1);
+                cellsArr[iterand].textContent = 'Данные отсутствуют';
+                iterand++;
+            } else {
                 Object.values(content_data[i]).forEach((item, y) => {
                     cellsArr[iterand] = rowArr[i].insertCell(-1);
                     if (typeof (item) == 'object') {
