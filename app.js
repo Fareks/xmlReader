@@ -64,7 +64,7 @@ function initMasteramParser() {
     var itemFeaturesEpic = [];
 
 
-    logTxt('connecting to masteram...<img  src="loading.gif" width="20" height="20" alt="загрузка" >');
+    logTxt('connecting to masteram...<img  src="https://fareks.github.io/xmlReader/loading.gif" width="20" height="20" alt="загрузка" >');
 
     axios.get(`${input_value}`).then(html => {
         logTxt('......................');
@@ -414,13 +414,13 @@ $(".buttonCard").each(function () {
             $(this).children('button').attr('class', 'button__active');
             switch ($(this).children('button').attr('id')) {
                 case 'button':
-                    $(this).find('img').attr('src', "\\content\\excelGif.gif");
+                    $(this).find('img').attr('src', "https://fareks.github.io/xmlReader/content\\excelGif.gif");
                     break;
                 case 'button_2':
-                    $(this).find('img').attr('src', "\\content\\MasteramGif.gif");
+                    $(this).find('img').attr('src', "https://fareks.github.io/xmlReader/content\\MasteramGif.gif");
                     break;
                 case 'button_3':
-                    $(this).find('img').attr('src', "\\content\\ymlGif.gif");
+                    $(this).find('img').attr('src', "\https://fareks.github.io/xmlReader/content\\ymlGif.gif");
                     break;
                 default:
                     break;
@@ -434,13 +434,13 @@ $(".buttonCard").each(function () {
             $(this).children('button').attr('class', 'button');
             switch ($(this).children('button').attr('id')) {
                 case 'button':
-                    $(this).find('img').attr('src', "\\content\\excelButtonStart.png");
+                    $(this).find('img').attr('src', "https://fareks.github.io/xmlReader/content\\excelButtonStart.png");
                     break;
                 case 'button_2':
-                    $(this).find('img').attr('src', "\\content\\startMasteram.png");
+                    $(this).find('img').attr('src', "https://fareks.github.io/xmlReader/content\\startMasteram.png");
                     break;
                 case 'button_3':
-                    $(this).find('img').attr('src', "\\content\\ymlStart.png");
+                    $(this).find('img').attr('src', "https://fareks.github.io/xmlReader/content\\ymlStart.png");
                     break;
                 default:
                     break;
