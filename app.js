@@ -37,15 +37,34 @@ parse_yml_button.addEventListener('click', initYML_Parser);
 //masteram parser
 //основной замес с коннектом на мастерам и формированием массивов данных 
 
-
+let FirstListener = 0;
 function MasteramParseBuilder() {
     //инициализация формы и ожидание ввода данных (урл)
-    document.forms[0].classList.toggle('URLform_active');
-    document.forms[0].classList.toggle('URLform_disable');
-    $('#inputURL_Button').on('click', function (e) {
-        e.preventDefault();
-        initMasteramParser();
-    });
+    if (document.forms[0].classList.contains('URLform_active')) {
+        logTxt ("Проверка на URLform_active= "+document.forms[0].classList.contains('URLform_active'));
+        document.forms[0].classList.remove('URLform_active');
+        document.forms[0].classList.add('fade');
+        document.forms[0].classList.add('URLform_disable');
+        
+    }
+    else if (document.forms[0].classList.contains('URLform_disable')) {
+        logTxt ("Проверка на URLform_disable= "+ document.forms[0].classList.contains('URLform_active'));
+        document.forms[0].classList.remove('URLform_disable');
+        document.forms[0].classList.add('show');
+        document.forms[0].classList.add('URLform_active');
+    }
+
+    if (FirstListener == 0)
+    {
+        FirstListener++;
+        $('#inputURL_Button').on('click', function (e) {
+            
+            e.preventDefault();
+            initMasteramParser();
+        });
+
+    }
+
 }
 
 function initMasteramParser() {
@@ -133,6 +152,7 @@ function initMasteramParser() {
                             ], ["емкость", "постоянное напряжение", "постоянный ток", "сопротивление",
                                 "переменное напряжение", "переменный ток", "температура", "тестирование диодов", "частота"
                             ], regExp);
+                            break;
                             //отдали getFeature все необходимые свойства, теперь превращаем в false все ненужное, используя РегВыр
                         case 'Паяльні станції термоповітряні ':
                             break;
@@ -365,7 +385,7 @@ function addRow(tableID, rowsAmount, cellsAmmount = 8, contentArray) {
                 cellsArr[iterand] = rowArr[i].insertCell(-1);
                 cellsArr[iterand].textContent = (content_data[i]);
                 iterand++;
-            } else if (content_data[i] === null || typeof (content_data[i]) == 'undefined'){ //в другом случае открываем как обьект и проверяем, нет ли там ещё обьектов. 
+            } else if (content_data[i] === null || typeof (content_data[i]) == 'undefined') { //в другом случае открываем как обьект и проверяем, нет ли там ещё обьектов. 
                 cellsArr[iterand] = rowArr[i].insertCell(-1);
                 cellsArr[iterand].textContent = 'Данные отсутствуют';
                 iterand++;
@@ -420,7 +440,7 @@ $(".buttonCard").each(function () {
                     $(this).find('img').attr('src', "https://fareks.github.io/xmlReader/content\\MasteramGif.gif");
                     break;
                 case 'button_3':
-                    $(this).find('img').attr('src', "\https://fareks.github.io/xmlReader/content\\ymlGif.gif");
+                    $(this).find('img').attr('src', "https://fareks.github.io/xmlReader/content\\ymlGif.gif");
                     break;
                 default:
                     break;

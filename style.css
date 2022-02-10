@@ -20,23 +20,18 @@ body {
     display: flex;
     justify-content: center;
     align-items:center;
-    position: absolute;
-    visibility: hidden;
-    opacity: 0;
-    transition: all 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
+    display: none;
+
 }
 
 .URLform_active
 {
-    opacity: 1;
     width: 877px;
     margin: auto;
     display: flex;
     justify-content: center;
     align-items: center;
     position: static;
-    visibility: visible;
-    transition: all 0.7s cubic-bezier(0.215, 0.61, 0.355, 1) 0s;
 }
 #url {
     height: 40px;
@@ -233,4 +228,20 @@ body {
     text-shadow: none;
     font-family: 'Press Start 2P', cursive;
     background-color: rgb(231, 231, 240);
+}
+
+.fade {
+    animation-name:fade;
+    animation-duration: 0.4s;
+}
+.show {
+    animation: show 0.4s ; 
+}
+@keyframes fade {
+   from {opacity: 1;}
+   to {opacity: 0;}
+}
+@keyframes show {
+    from {opacity: 0.1;}
+    to {opacity: 1;}
 }
