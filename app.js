@@ -41,14 +41,12 @@ let FirstListener = 0;
 function MasteramParseBuilder() {
     //инициализация формы и ожидание ввода данных (урл)
     if (document.forms[0].classList.contains('URLform_active')) {
-        logTxt ("Проверка на URLform_active= "+document.forms[0].classList.contains('URLform_active'));
         document.forms[0].classList.remove('URLform_active');
         document.forms[0].classList.add('fade');
         document.forms[0].classList.add('URLform_disable');
         
     }
     else if (document.forms[0].classList.contains('URLform_disable')) {
-        logTxt ("Проверка на URLform_disable= "+ document.forms[0].classList.contains('URLform_active'));
         document.forms[0].classList.remove('URLform_disable');
         document.forms[0].classList.add('show');
         document.forms[0].classList.add('URLform_active');
