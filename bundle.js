@@ -42,14 +42,12 @@ let FirstListener = 0;
 function MasteramParseBuilder() {
     //инициализация формы и ожидание ввода данных (урл)
     if (document.forms[0].classList.contains('URLform_active')) {
-        logTxt ("Проверка на URLform_active= "+document.forms[0].classList.contains('URLform_active'));
         document.forms[0].classList.remove('URLform_active');
         document.forms[0].classList.add('fade');
         document.forms[0].classList.add('URLform_disable');
         
     }
     else if (document.forms[0].classList.contains('URLform_disable')) {
-        logTxt ("Проверка на URLform_disable= "+ document.forms[0].classList.contains('URLform_active'));
         document.forms[0].classList.remove('URLform_disable');
         document.forms[0].classList.add('show');
         document.forms[0].classList.add('URLform_active');
@@ -118,7 +116,7 @@ function initMasteramParser() {
                     parseObj.id += `${linkData(elem).text().slice(4)}`;
                 });
                 getItemsFeatures(categoryName, parseObj.id);
-                parseObj.warranty = parseInt(linkData('[class="prp_info_item info-warranty"] > b').text());
+                parseObj.warranty = parseInt(linkData('[class="prp_info_item info-warranty"] > span').text());
                 let miniFeaturesAreParsed = false; //проверяем, спарсили ли мы таблицу в таблице
                 linkData(`h2:contains("Особливості"), h2:contains("ОСОБЛИВОСТІ")`).next().children().each((i, elem) => {
                     miniFeaturesAreParsed = false;
@@ -365,7 +363,7 @@ function clearLog() {
     divBlock.innerHTML = (``);
 }
 
-// функция addRow принимает в себя 1.Айди таблицы, которую и будем билдить. 2. Количество строк. 3. Количество столбцов, массив контента, 
+// функция addRow принимает в себя 1.Айди таблицы, которую и будем билдить. 2. Количество строк. 3. Количество столбцов, 4. массив, 
 // который содержит минимум один массив контента.
 function addRow(tableID, rowsAmount, cellsAmmount = 8, contentArray) {
     // Get a reference to the table

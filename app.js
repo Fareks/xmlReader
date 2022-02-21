@@ -115,7 +115,7 @@ function initMasteramParser() {
                     parseObj.id += `${linkData(elem).text().slice(4)}`;
                 });
                 getItemsFeatures(categoryName, parseObj.id);
-                parseObj.warranty = parseInt(linkData('[class="prp_info_item info-warranty"] > b').text());
+                parseObj.warranty = parseInt(linkData('[class="prp_info_item info-warranty"] > span').text());
                 let miniFeaturesAreParsed = false; //проверяем, спарсили ли мы таблицу в таблице
                 linkData(`h2:contains("Особливості"), h2:contains("ОСОБЛИВОСТІ")`).next().children().each((i, elem) => {
                     miniFeaturesAreParsed = false;
@@ -362,7 +362,7 @@ function clearLog() {
     divBlock.innerHTML = (``);
 }
 
-// функция addRow принимает в себя 1.Айди таблицы, которую и будем билдить. 2. Количество строк. 3. Количество столбцов, массив контента, 
+// функция addRow принимает в себя 1.Айди таблицы, которую и будем билдить. 2. Количество строк. 3. Количество столбцов, 4. массив, 
 // который содержит минимум один массив контента.
 function addRow(tableID, rowsAmount, cellsAmmount = 8, contentArray) {
     // Get a reference to the table
