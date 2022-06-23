@@ -3,7 +3,13 @@ body {
     color: aliceblue;
     font-family: 'Rubik';
 }
-
+.simpleText {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    line-height:2;
+    display: flex;
+    justify-content: center;
+}
 #url_console_prefix
 {
     font-family: 'Press Start 2P', cursive;
@@ -26,6 +32,13 @@ body {
 
 .URLform_active
 {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.URLform_container {
+    display: flex;
+    align-items: center;
     width: 877px;
     margin: auto;
     display: flex;
