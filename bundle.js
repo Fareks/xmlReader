@@ -310,7 +310,7 @@ function initYML_Parser() {
         //     desRu
         // };
         logTxt(`init yml parse script: ${iterate++}`);
-        fetch('https://masteram.com.ua/uk/yml/epicentr-stem-1/').then((response) => {
+        fetch('https://f00.psgsm.net/site/datafeeds/epicentr/main.xml').then((response) => {
             logTxt('xml response...');
             response.text().then((xml) => {
                 logTxt('xml ready.');
